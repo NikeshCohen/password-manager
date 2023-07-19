@@ -1,19 +1,59 @@
 import tkinter as tk
+import json
 from pyperclip import copy
 from random import choice, randint, shuffle
 from tkinter import messagebox
 
 
 # ---------------------------- Functions------------------------------- #
+def search():
+    website = website_input.get()
+
+    try:
+        with open("data.json", "r") as data_file:
+            data = json.load(data_file)
+
+            if website in data:
+                messagebox.showinfo(
+                    title=f"Data for {website}",
+                    message=f"Email: {data[website].get('email')}\nPassword: {data[website].get('password')}",
+                )
+
+            else:
+                messagebox.showerror(
+                    title="No data found",
+                    message="Please add the account information before trying to access it",
+                )
+    except FileNotFoundError:
+        messagebox.showerror(
+            title="No data found",
+            message="Please add the account infomation before trying",
+        )
+
+    except ValueError:
+        messagebox.showerror(
+            title="No data found",
+            message="Please add the account infomation before trying",
+        )
+
+
 def save():
     website = website_input.get()
     email = email_input.get()
     password = password_input.get()
 
+    new_data = {
+        website: {
+            "email": email,
+            "password": password,
+        }
+    }
+
     if len(website) == 0 or len(email) == 0 or len(password) == 0:
         messagebox.showerror(
             title="Invalid input", message="Please do not leave any fields empty"
         )
+
     else:
         save = messagebox.askokcancel(
             title=website,
@@ -21,17 +61,26 @@ def save():
         )
 
         if save:
-            with open("data.txt", "a") as data_file:
-                data_file.write("\n------------------------------------")
-                data_file.write(f"\n{website} | {email} | {password}\n")
+            try:
+                with open("data.json", "r") as data_file:
+                    data = json.load(data_file)
+                    data.update(new_data)
 
+            except FileNotFoundError:
+                with open("data.json", "w") as data_file:
+                    json.dump(new_data, data_file, indent=4)
+
+            else:
+                with open("data.json", "w") as data_file:
+                    json.dump(data, data_file, indent=4)
+
+            finally:
                 website_input.delete(0, tk.END)
                 password_input.delete(0, tk.END)
 
 
 def password_gen():
     password_input.delete(0, tk.END)
-
     letters = [
         "a",
         "b",
@@ -123,7 +172,7 @@ website_label.grid(row=1, column=0)
 
 website_input = tk.Entry()
 website_input.focus()
-website_input.grid(row=1, column=1, columnspan=2, sticky="EW", pady=3)
+website_input.grid(row=1, column=1, sticky="EW", pady=3)
 
 
 # Username input
@@ -144,6 +193,10 @@ password_input.grid(row=3, column=1, sticky="EW", pady=3)
 
 
 # Button
+
+# # Search button
+search_button = tk.Button(text="Search", command=search)
+search_button.grid(row=1, column=2, sticky="EW", pady=3, padx=(10, 0))
 
 # # Password generation button
 password_gen_button = tk.Button(text="Generate password", command=password_gen)

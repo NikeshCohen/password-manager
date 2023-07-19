@@ -2,6 +2,10 @@
 
 A simple password manager that allows you to store your website passwords offline and in a secure way.
 
+Update v1.2: Changed data file to json format. Added a search feature which will return the account information. Added more try and except tests to ensure there are no errors when running the program
+
+Future Updates: Improving the UI
+
 ## Features
 
 - Generate strong passwords
